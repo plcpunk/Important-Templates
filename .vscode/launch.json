@@ -1,0 +1,31 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Program",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "preLaunchTask": "Main",
+            "program": "${workspaceRoot}/Main.exe ",
+            "args": ["< \"input/input.txt\"","> \"output/output.txt\""],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false
+        },
+        {
+            "name": "Debug Program",
+            "type": "cppdbg",
+            "request": "launch",
+            "targetArchitecture": "x64",
+            "preLaunchTask": "Debug",
+            "program": "${workspaceRoot}/Main.exe",
+            "args": ["< \"input/input.txt\"", "> \"output/output.txt\""],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": true,
+            "miDebuggerPath": "C://cygwin64//bin//gdb.exe"
+        }
+    ]
+}
