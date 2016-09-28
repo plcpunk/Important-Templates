@@ -29,5 +29,5 @@
 *.app
 
 #Folders
-input
-output
+input/
+output/
