@@ -8,6 +8,7 @@ class HeavyLight {
     int *specialChild;
     int *parent;
     int size;
+    int totalChains;
 
     int subTreeHelper(int v,bool *vis)
     {
@@ -34,19 +35,20 @@ class HeavyLight {
         return res;
     }
 
-    int decompositionHelper(int v,int chain,int firstVertex, int index)
+    void decompositionHelper(int v, int index)
     {
-        vertexToChainMap[v] = std::make_pair(chain,index);
-        firstChainVertex[chain] = firstVertex;
+        vertexToChainMap[v] = std::make_pair(totalChains,index);
+        if(index==0)
+            firstChainVertex[totalChains] = v;
+        if(specialChild[v]!=-1)
+            decompositionHelper(specialChild[v],index+1);
         for(int i=0;i<adj[v].size();i++)
         {
             int newV = adj[v][i];
-            if(newV!=parent[v])
+            if(newV!=parent[v] && specialChild[v] != newV)
             {
-                if(specialChild[v] == newV)
-                    decompositionHelper(newV,chain,firstVertex,index+1);
-                else
-                    decompositionHelper(newV,chain+1,newV,0);
+                totalChains++;
+                decompositionHelper(newV,0);
             }
         }
     }
@@ -56,6 +58,7 @@ class HeavyLight {
     HeavyLight(int n)
     {
         size = n;
+        totalChains = 0;
         adj = new std::vector<int>[size+9];
         vertexToChainMap = new std::pair<int,int>[size+9];
         firstChainVertex = new int[size+9];
@@ -71,9 +74,40 @@ class HeavyLight {
 
     void initialize()
     {
-        bool *vis = new bool[size+9];
+        bool *vis = new bool[size+9]();
         parent[1] = -1;
         subTreeHelper(1,vis);
-        decompositionHelper(1,0,1,0);
+        decompositionHelper(1,0);
+        totalChains++;
+    }
+
+    int next(int v)
+    {
+        return specialChild[v];
+    }
+
+    int prev(int v)
+    {
+        return parent[v];
+    }
+
+    int index(int v)
+    {
+        return vertexToChainMap[v].second;
+    }
+
+    int chain_number(int v)
+    {
+        return vertexToChainMap[v].first;
+    }
+
+    int first_vertex(int chain)
+    {
+        return firstChainVertex[chain];
+    }
+
+    int total_chains()
+    {
+        return totalChains;
     }
 };

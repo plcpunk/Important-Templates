@@ -81,6 +81,8 @@ template <class T> class SegmentTree {
 
 	void construct_tree(T *arr,int n)
 	{
+		if(n<=0)
+			return;
 		size = n;
 		tree = new T[4*size+9];
 		lazy = new T[4*size+9];
@@ -89,11 +91,15 @@ template <class T> class SegmentTree {
 
 	void update(int l,int r,T val)
 	{
+		if(l>r || l<0 || l>size || r<0 || r>size)
+			return;
 		update_helper(l,r,val,0,size-1,0);
 	}
 
 	T query(int l,int r)
 	{
+		if(l>r || l<0 || l>size || r<0 || r>size)
+			return identity_element();
 		return query_helper(l,r,identity_element(),0,size-1,0);
 	}
 
