@@ -138,6 +138,8 @@ template <class T> class PersistentTree {
 
     T query(int l,int r,int index)
     {
+        if(l>r || l<0 || l>size || r<0 || r>size)
+			return identity_element();
         return query_helper(l,r,identity_element(),0,size-1,tree.at(index),lazy.at(index));
     }
 
