@@ -1,6 +1,8 @@
 #include <vector>
 
 template <class T> class PersistentTree {
+    public:
+
     struct node {
         T info;
         node *left;
@@ -14,7 +16,7 @@ template <class T> class PersistentTree {
 
     vector <node*> tree;
     vector <node*> lazy;
-
+       
     int size;
 
     node* initNode() 
@@ -105,8 +107,6 @@ template <class T> class PersistentTree {
 		}
 	}
 
-    public:
-
 	virtual T combine(T x,T y) = 0;
 
 	virtual T update_combine(T x, T y) = 0;
@@ -125,13 +125,13 @@ template <class T> class PersistentTree {
         lazy.push_back(lazyRoot);
 	}
 
-    void update(int l,int r,T val)
+    void update(int l,int r,T val,int index)
     {
         if(l>r || l<0 || l>size || r<0 || r>size)
 			return;
         node *newRoot = initNode();
         node *newLazyRoot = initNode();    
-        update_helper(l,r,val,0,size-1,tree.at(tree.size()-1),lazy.at(lazy.size()-1),newRoot,newLazyRoot);
+        update_helper(l,r,val,0,size-1,tree.at(index),lazy.at(index),newRoot,newLazyRoot);
         tree.push_back(newRoot);
         lazy.push_back(newLazyRoot);
     }
@@ -146,6 +146,11 @@ template <class T> class PersistentTree {
     T query_current(int l,int r)
     {
         return query(l,r,tree.size()-1);
+    }
+
+    void update_current(int l,int r,T val)
+    {
+        update(l,r,val,tree.size()-1);
     }
 
 };

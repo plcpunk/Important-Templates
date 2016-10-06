@@ -1,151 +1,142 @@
-#include <iostream>
 #include <cstdio>
-#include <cstring>
+#include <vector>
+#include <algorithm>
 using namespace std;
-#include "templates/SegmentTree.h"
-#include "templates/HeavyLight.h"
+#include "templates/PersistentTree.h"
 #include "templates/Lca.h"
 
-class Custom_SegmentTree: public SegmentTree<int> {
+vector<int> adj[100009];
+int order[100009];
+int weight[100009];
+int parent[100009];
+int map[100009];
+int total_so_far = 0;
+
+class Custom_SegmentTree: public PersistentTree<int> {
 	public:
 
 	int combine(int x,int y)
 	{
-		return max(x,y);
+		return x+y;
 	}
 
 	int update_combine(int x,int y)
 	{
-		if(y==-1)
-			return x;
-		return y;
+		return x+y;
 	}
 
 	int identity_element()
 	{
-		return -1;
+		return 0;
 	}
 
-};
+	int query_special(int u,int v,int lcaV,int parentLca,int k)
+	{
+		node *uRoot = tree.at(u);
+		node *vRoot = tree.at(v);
+		node *lcaRoot = tree.at(lcaV);
+		node *parentRoot = NULL;
+		if(parentLca!=-1) {
+			parentRoot = tree.at(parentLca);
+		}
+		int lo=0,hi=size-1;
+		while(lo!=hi)
+		{
+			int mid = lo + (hi-lo)/2;
+			int num = uRoot->left->info + vRoot->left->info - lcaRoot->left->info - ((parentLca!=-1)?parentRoot->left->info:0);
+			if(num<k)
+			{
+				uRoot = uRoot->right;
+				vRoot = vRoot->right;
+				lcaRoot = lcaRoot->right;
+				if(parentLca!=-1)
+					parentRoot = parentRoot->right;
+				lo = mid+1;
+				k = k-num;
+			}
+			else
+			{
+				uRoot = uRoot->left;
+				vRoot = vRoot->left;
+				lcaRoot = lcaRoot->left;
+				if(parentLca!=-1)
+					parentRoot = parentRoot->left;
+				hi = mid;
+			}
+		}
+		return lo;
+	}
+
+} tree;
+
+void dfs(int v, int prev,int sequence)
+{
+	total_so_far++;
+	order[v] = total_so_far;
+	parent[v] = prev;
+	tree.update(weight[v],weight[v],1,sequence);
+	int size = adj[v].size();
+	for(int i=0;i<size;i++)
+	{
+		int newV = adj[v][i];
+		if(prev!=newV)
+		{
+			dfs(newV,v,order[v]);
+		}
+	}
+}
 
 void solve_input()
 {
-	Custom_SegmentTree *tree;
-	pair<int,int> edge[10009];
-	int tmp[10009];
-	int weight[10009];
-	int n;
-	scanf("%d",&n);
-	Lca lca(n);
-	HeavyLight hld(n);
-	for(int i=0;i<n-1;i++)
+	pair<int,int> f[100009];
+	int arr[100009]={0};
+	int n,m;
+	scanf("%d%d",&n,&m);
+	Lca lcaTree(n);
+	for(int i=0;i<n;i++)
 	{
-		int u,v,w;
-		scanf("%d%d%d",&u,&v,&w);
-		lca.addEdge(u,v);
-		hld.addEdge(u,v);
-		edge[i] = make_pair(u,v);
-		tmp[i] = w;
+		int w;
+		scanf("%d", &w);
+		f[i] = make_pair(w,i);
 	}
-	lca.initialize();
-	hld.initialize();
-	for(int i=0;i<n-1;i++)
-	{
-		int u = edge[i].first;
-		int v = edge[i].second;
-		if(hld.prev(u)==v)
-		{
-			weight[u]=tmp[i];
+	sort(f,f+n);
+	weight[f[0].second+1]=0;
+	map[weight[f[0].second+1]]=f[0].first;
+	for(int i=1;i<n;i++)
+	{	
+		if(f[i].first!=f[i-1].first)
+		{	
+			weight[f[i].second+1] = weight[f[i-1].second+1]+1;
+			map[weight[f[i].second+1]] = f[i].first;
 		}
 		else
-		{
-			weight[v]=tmp[i];
-		}
+			weight[f[i].second+1] = weight[f[i-1].second+1];
 	}
-	int totalChains = hld.total_chains();
-	tree = new Custom_SegmentTree[totalChains];
-	for(int i=0;i<totalChains;i++)
+	tree.construct_tree(arr,n);
+	for(int i=0;i<n-1;i++)
 	{
-		int size=0;
-		int v = hld.first_vertex(i);
-		while(1)
-		{
-			int next = hld.next(v);
-			if(next==-1)
-				break;
-			tmp[size]=weight[next];
-			v = next;
-			size++;
-		}
-		tree[i].construct_tree(tmp,size);
+		int u,v;
+		scanf("%d%d",&u,&v);
+		adj[u].push_back(v);
+		adj[v].push_back(u);
+		lcaTree.addEdge(u,v);
 	}
-	while(1)
+	lcaTree.initialize();
+	dfs(1,0,0);
+	order[0]=-1;
+	while(m--)
 	{
-		char str[10];
-		char change[10]="CHANGE";
-		char query[10]="QUERY";
-		scanf("%s",&str);
-		if(strcmp(str,change)==0)
-		{
-			int index,t,vertex;
-			scanf("%d%d",&index,&t);
-			int u = edge[index-1].first;
-			int v = edge[index-1].second;
-			if(hld.prev(u)==v)
-				vertex = u;
-			else
-				vertex = v;
-			int i = hld.index(vertex);
-			int chainNumber = hld.chain_number(vertex);
-			weight[vertex] = t;
-			tree[chainNumber].update(i-1,i-1,t);
-		}
-		else if(strcmp(str,query)==0)
-		{
-			int u,v;
-			scanf("%d%d",&u,&v);
-			int lcaV = lca.lca(u,v);
-			int res = -1;
-			if(u!=lcaV)
-			{
-				int ch = hld.chain_number(lcaV);
-				int vertex = hld.next(lcaV);
-				while(ch!=hld.chain_number(u))
-				{
-					int num = hld.chain_number(u);
-					res = max(res,tree[num].query(0,hld.index(u)-1));
-					res = max(res,weight[hld.first_vertex(num)]);
-					u = hld.prev(hld.first_vertex(num));
-				}
-				res = max(res,tree[ch].query(hld.index(vertex)-1,hld.index(u)-1));
-			}
-			if(v!=lcaV)
-			{
-				int ch = hld.chain_number(lcaV);
-				int vertex = hld.next(lcaV);
-				while(ch!=hld.chain_number(v))
-				{
-					int num = hld.chain_number(v);
-					res = max(res,tree[num].query(0,hld.index(v)-1));
-					res = max(res,weight[hld.first_vertex(num)]);
-					v = hld.prev(hld.first_vertex(num));
-				}
-				res = max(res,tree[ch].query(hld.index(vertex)-1,hld.index(v)-1));
-			}
-			printf("%d\n",res);
-		}
-		else
-		{
-			break;
-		}
+		int u,v,k;
+		scanf("%d%d%d",&u,&v,&k);
+		int lcaV = lcaTree.lca(u,v);
+		int parentLca = parent[lcaV];
+		int res = tree.query_special(order[u],order[v],order[lcaV],order[parentLca],k);
+		printf("%d\n",map[res]);
 	}
 }
 
 int main()
 {
-	int t;
-	scanf("%d",&t);
-	while(t--)
-		solve_input();
+	solve_input();
 	return 0;
 }
