@@ -1,137 +1,93 @@
 #include <cstdio>
 #include <vector>
 #include <algorithm>
+#define pii pair<long long,long long>
+#define mk_pii make_pair
 using namespace std;
 #include "templates/PersistentTree.h"
 #include "templates/Lca.h"
+#include "templates/HeavyLight.h"
 
-vector<int> adj[100009];
-int order[100009];
-int weight[100009];
-int parent[100009];
-int map[100009];
-int total_so_far = 0;
-
-class Custom_SegmentTree: public PersistentTree<int> {
+class Custom_SegmentTree: public PersistentTree<pii> 
+{
 	public:
 
-	int combine(int x,int y)
+	pii combine(pii x,pii y)
 	{
-		return x+y;
+		return mk_pii(x.first+y.first,x.second+y.second);
 	}
 
-	int update_combine(int x,int y)
+	pii lazy_combine(pii x,pii y)
 	{
-		return x+y;
+		return mk_pii(x.first+y.first,x.second+y.second);
 	}
 
-	int identity_element()
+	pii identity_element()
 	{
-		return 0;
+		return mk_pii(0,0);
 	}
 
-	int query_special(int u,int v,int lcaV,int parentLca,int k)
+	pii apply_update(pii x,pii y,int n)
 	{
-		node *uRoot = tree.at(u);
-		node *vRoot = tree.at(v);
-		node *lcaRoot = tree.at(lcaV);
-		node *parentRoot = NULL;
-		if(parentLca!=-1) {
-			parentRoot = tree.at(parentLca);
-		}
-		int lo=0,hi=size-1;
-		while(lo!=hi)
-		{
-			int mid = lo + (hi-lo)/2;
-			int num = uRoot->left->info + vRoot->left->info - lcaRoot->left->info - ((parentLca!=-1)?parentRoot->left->info:0);
-			if(num<k)
-			{
-				uRoot = uRoot->right;
-				vRoot = vRoot->right;
-				lcaRoot = lcaRoot->right;
-				if(parentLca!=-1)
-					parentRoot = parentRoot->right;
-				lo = mid+1;
-				k = k-num;
-			}
-			else
-			{
-				uRoot = uRoot->left;
-				vRoot = vRoot->left;
-				lcaRoot = lcaRoot->left;
-				if(parentLca!=-1)
-					parentRoot = parentRoot->left;
-				hi = mid;
-			}
-		}
-		return lo;
+		return mk_pii(x.first + (long long)n*y.first+((long long)n*(n-1)/2)*y.second,0);
 	}
 
-} tree;
-
-void dfs(int v, int prev,int sequence)
-{
-	total_so_far++;
-	order[v] = total_so_far;
-	parent[v] = prev;
-	tree.update(weight[v],weight[v],1,sequence);
-	int size = adj[v].size();
-	for(int i=0;i<size;i++)
-	{
-		int newV = adj[v][i];
-		if(prev!=newV)
-		{
-			dfs(newV,v,order[v]);
-		}
-	}
-}
+} *tree;
 
 void solve_input()
 {
-	pair<int,int> f[100009];
-	int arr[100009]={0};
+	pii arr[100009];
 	int n,m;
 	scanf("%d%d",&n,&m);
 	Lca lcaTree(n);
-	for(int i=0;i<n;i++)
-	{
-		int w;
-		scanf("%d", &w);
-		f[i] = make_pair(w,i);
-	}
-	sort(f,f+n);
-	weight[f[0].second+1]=0;
-	map[weight[f[0].second+1]]=f[0].first;
-	for(int i=1;i<n;i++)
-	{	
-		if(f[i].first!=f[i-1].first)
-		{	
-			weight[f[i].second+1] = weight[f[i-1].second+1]+1;
-			map[weight[f[i].second+1]] = f[i].first;
-		}
-		else
-			weight[f[i].second+1] = weight[f[i-1].second+1];
-	}
-	tree.construct_tree(arr,n);
+	HeavyLight hldTree(n);
 	for(int i=0;i<n-1;i++)
 	{
 		int u,v;
-		scanf("%d%d",&u,&v);
-		adj[u].push_back(v);
-		adj[v].push_back(u);
+		scanf("%d%d", &u, &v);
 		lcaTree.addEdge(u,v);
+		hldTree.addEdge(u,v);
 	}
-	lcaTree.initialize();
-	dfs(1,0,0);
-	order[0]=-1;
+	lca.initialize();
+	hld.initialize();
+	int totalChains = hld.total_chains();
+	tree = new Custom_SegmentTree[totalChains];
+	for(int i=0;i<totalChains;i++)
+	{
+		int u = hld.first_vertex(i);
+		int size=0;
+		while(u!=-1)
+		{
+			arr[size]= mk_pii(0,0);
+			size++;
+			u = hld.next(u);
+		}
+		tree[i].construct_tree(arr,size);
+	}
+	int lastans=0,update_queries=0;
 	while(m--)
 	{
-		int u,v,k;
-		scanf("%d%d%d",&u,&v,&k);
-		int lcaV = lcaTree.lca(u,v);
-		int parentLca = parent[lcaV];
-		int res = tree.query_special(order[u],order[v],order[lcaV],order[parentLca],k);
-		printf("%d\n",map[res]);
+		char type;
+		scanf("%c",&type);
+		if(type=='l')
+		{
+			int x1;
+			scanf("%d",&x1);
+			int x = (x1+lastans)%(update_queries+1);
+		}
+		else if(type=='c')
+		{
+			int x1,y1,A,B;
+			scanf("%d%d%d%d",&x1,&y1,&A,&B);
+			int x = (x1+lastans)%n+1, y = (y1+lastans)%n+1;
+			update_queries++;
+		}
+		else
+		{
+			int x1,y1;
+			scanf("%d%d",&x1,&y1);
+			int x = (x1+lastans)%n+1, y = (y1+lastans)%n+1;
+		}
 	}
 }
 

@@ -46,8 +46,8 @@ template <class T> class PersistentTree {
         int mid = x + (y-x)/2;
 		if(l==x && r==y)
 		{
-			newLazyCur->info = update_combine(lazyCur->info,val);
-			newCur->info = update_combine(cur->info,val);
+			newLazyCur->info = lazy_combine(lazyCur->info,val);
+			newCur->info = apply_update(cur->info,val,r-l+1);
             newLazyCur->left = lazyCur->left;
             newLazyCur->right = lazyCur->right;
             newCur->left = cur->left;
@@ -81,7 +81,7 @@ template <class T> class PersistentTree {
 		}
         newCur->info = combine(newCur->left->info,newCur->right->info);
         newLazyCur->info = lazyCur->info;
-		newCur->info = update_combine(newCur->info,newLazyCur->info);
+		newCur->info = apply_update(newCur->info,newLazyCur->info,y-x+1);
     }
 
 	T query_helper(int l,int r,T lazyVal,int x,int y,node* cur,node* lazyCur)
@@ -89,29 +89,31 @@ template <class T> class PersistentTree {
 		int mid = x + (y-x)/2;
 		if(l==x && r==y)
 		{
-				return update_combine(lazyVal,cur->info);
+				return lazy_combine(lazyVal,cur->info);
 		}
 		else if(r<=mid)
 		{
-			return query_helper(l,r,update_combine(lazyVal,lazyCur->info),x,mid,cur->left,lazyCur->left);
+			return query_helper(l,r,lazy_combine(lazyVal,lazyCur->info),x,mid,cur->left,lazyCur->left);
 		}
 		else if(l>mid)
 		{
-			return query_helper(l,r,update_combine(lazyVal,lazyCur->info),mid+1,y,cur->right,lazyCur->right);
+			return query_helper(l,r,lazy_combine(lazyVal,lazyCur->info),mid+1,y,cur->right,lazyCur->right);
 		}
 		else
 		{
-			T result1 = query_helper(l,mid,update_combine(lazyVal,lazyCur->info),x,mid,cur->left,lazyCur->left);
-			T result2 = query_helper(mid+1,r,update_combine(lazyVal,lazyCur->info),mid+1,y,cur->right,lazyCur->right);
+			T result1 = query_helper(l,mid,lazy_combine(lazyVal,lazyCur->info),x,mid,cur->left,lazyCur->left);
+			T result2 = query_helper(mid+1,r,lazy_combine(lazyVal,lazyCur->info),mid+1,y,cur->right,lazyCur->right);
 			return combine(result1,result2);
 		}
 	}
 
 	virtual T combine(T x,T y) = 0;
 
-	virtual T update_combine(T x, T y) = 0;
+	virtual T lazy_combine(T x, T y) = 0;
 
 	virtual T identity_element() = 0;
+
+    virtual T apply_update(T x, T y, int n) = 0;
 
 	void construct_tree(T *arr,int n)
 	{
