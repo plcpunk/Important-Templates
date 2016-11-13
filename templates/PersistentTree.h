@@ -127,6 +127,21 @@ template <class T> class PersistentTree {
         lazy.push_back(lazyRoot);
 	}
 
+    void construct_tree(int n)
+    {
+        if(n<=0)
+            return;
+        size = n;
+        node *root = initNode();
+        node *lazyRoot = initNode();
+        T *arr = new T[n+9];
+        for(int i=0;i<n;i++)
+            arr[i] = identity_element();
+		construct_tree_helper(arr,0,size-1,root,lazyRoot);
+        tree.push_back(root);
+        lazy.push_back(lazyRoot);
+    }
+
     void update(int l,int r,T val,int index)
     {
         if(l>r || l<0 || l>size || r<0 || r>size)
