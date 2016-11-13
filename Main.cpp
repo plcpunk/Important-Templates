@@ -48,19 +48,19 @@ void solve_input()
 		lcaTree.addEdge(u,v);
 		hldTree.addEdge(u,v);
 	}
-	lca.initialize();
-	hld.initialize();
-	int totalChains = hld.total_chains();
+	lcaTree.initialize();
+	hldTree.initialize();
+	int totalChains = hldTree.total_chains();
 	tree = new Custom_SegmentTree[totalChains];
 	for(int i=0;i<totalChains;i++)
 	{
-		int u = hld.first_vertex(i);
+		int u = hldTree.first_vertex(i);
 		int size=0;
 		while(u!=-1)
 		{
 			arr[size]= mk_pii(0,0);
 			size++;
-			u = hld.next(u);
+			u = hldTree.next(u);
 		}
 		tree[i].construct_tree(arr,size);
 	}
