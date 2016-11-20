@@ -51,4 +51,9 @@ class DSU
         }
         return true;
     }
+
+    int getSize(int x)
+    {
+        return size[find(x)];
+    }
 };
