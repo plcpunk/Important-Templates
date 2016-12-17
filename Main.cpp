@@ -1,94 +1,79 @@
 #include <cstdio>
 #include <vector>
 #include <algorithm>
-#define pii pair<long long,long long>
-#define mk_pii make_pair
 using namespace std;
-#include "templates/PersistentTree.h"
-#include "templates/Lca.h"
-#include "templates/HeavyLight.h"
+#include "templates/SegmentTree.h"
 
-class Custom_SegmentTree: public PersistentTree<pii> 
+struct segment {
+	long long firstNum;
+	long long lastNum;
+	int size;
+	int maxWidth;
+	int firstWidth;
+	bool firstType;
+	int lastWidth;
+	bool lastType;
+	segment()
+	{
+		firstNum = 0 = lastNum = 0 = size = 0 = lastWidth = firstWidth = maxWidth = 0;
+		firstType = lastType = false;
+	}
+	segment(long long a, long long b, int c, int d, int e,bool f, int g,bool h)
+	{
+		firstNum = a;lastNum = b;size = c;maxWidth = d,firstWidth = e;firstType = f;
+		lastWidth = g;lastType = h;
+	}
+};
+
+class Custom_SegmentTree: public SegmentTree<segment>
 {
 	public:
 
-	pii combine(pii x,pii y)
+	segment combine(segment x,segment y)
 	{
-		return mk_pii(x.first+y.first,x.second+y.second);
+		int firstWidth = x.firstWidth;
+		bool firstType = x.firstType;
+		int lastWidth = y.lastWidth;
+		bool lastType = y.lastType;
+		int maxWidth = max(x.maxWidth,y.maxWidth);
+		int firstNum = x.firstNum;
+		int lastNum = y.lastNum;
+		int size = x.size + y.size;
+		if(x.lastNum > y.firstNum)
+		{
+			int newWidth = x.lastWidth + (y.firstType)?1:y.firstWidth;
+			if(x.lastWidth==x.size)
+				firstWidth = newWidth;
+			if(y.firstWidth==y.size && !y.firstType)
+				lastWidth = newWidth;
+			if(y.size==1)
+				lastType = false;
+			if(x.size==1)
+				firstType = false;	
+		}
+		if(x.lastNum < y.firstNum)
+		{
+
+		}
+		return new segment(firstNum, lastNum, size,
+		maxWidth, firstWidth, firstType, lastWidth, lastType);
 	}
 
-	pii lazy_combine(pii x,pii y)
+	segment update_combine(segment x,segment y)
 	{
-		return mk_pii(x.first+y.first,x.second+y.second);
+		
 	}
 
-	pii identity_element()
+	segment identity_element()
 	{
-		return mk_pii(0,0);
+		return new segment();
 	}
 
-	pii apply_update(pii x,pii y,int n)
-	{
-		return mk_pii(x.first + (long long)n*y.first+((long long)n*(n-1)/2)*y.second,0);
-	}
-
-} *tree;
+} tree;
 
 void solve_input()
 {
-	pii arr[100009];
-	int n,m;
-	scanf("%d%d",&n,&m);
-	Lca lcaTree(n);
-	HeavyLight hldTree(n);
-	for(int i=0;i<n-1;i++)
-	{
-		int u,v;
-		scanf("%d%d", &u, &v);
-		lcaTree.addEdge(u,v);
-		hldTree.addEdge(u,v);
-	}
-	lcaTree.initialize();
-	hldTree.initialize();
-	int totalChains = hldTree.total_chains();
-	tree = new Custom_SegmentTree[totalChains];
-	for(int i=0;i<totalChains;i++)
-	{
-		int u = hldTree.first_vertex(i);
-		int size=0;
-		while(u!=-1)
-		{
-			arr[size]= mk_pii(0,0);
-			size++;
-			u = hldTree.next(u);
-		}
-		tree[i].construct_tree(arr,size);
-	}
-	int lastans=0,update_queries=0;
-	while(m--)
-	{
-		char type;
-		scanf("%c",&type);
-		if(type=='l')
-		{
-			int x1;
-			scanf("%d",&x1);
-			int x = (x1+lastans)%(update_queries+1);
-		}
-		else if(type=='c')
-		{
-			int x1,y1,A,B;
-			scanf("%d%d%d%d",&x1,&y1,&A,&B);
-			int x = (x1+lastans)%n+1, y = (y1+lastans)%n+1;
-			update_queries++;
-		}
-		else
-		{
-			int x1,y1;
-			scanf("%d%d",&x1,&y1);
-			int x = (x1+lastans)%n+1, y = (y1+lastans)%n+1;
-		}
-	}
+
 }
 
 int main()

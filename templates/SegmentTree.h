@@ -36,7 +36,7 @@ template <class T> class SegmentTree {
 		else if(l>mid)
 		{
 			T result = update_helper(l,r,val,mid+1,y,2*index+2);
-			tree[index] = combine(result,tree[2*index+1]);
+			tree[index] = combine(tree[2*index+1],result);
 		}
 		else
 		{
