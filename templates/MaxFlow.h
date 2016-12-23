@@ -1,7 +1,7 @@
 #include <queue>
 #include <vector>
 
-class MaxFlow
+class MaxFlow 
 {
     int size;
     vector<int> *adj;
@@ -20,8 +20,8 @@ class MaxFlow
         excess = new int[n+9];
         cap = new int*[n+9];
         flow = new int*[n+9];
-      	for(int i=0;i<n;i++)
-      	{
+        for(int i=0;i<n;i++)
+        {
             cap[i] = new int[n+9];
             flow[i] = new int[n+9];
             height[i] = 0;
@@ -125,4 +125,9 @@ class MaxFlow
     {
         return flow[u][v];
     }
+
+	int getCap(int u,int v)
+	{
+		return cap[u][v];
+	}
 };
