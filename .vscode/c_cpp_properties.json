@@ -9,10 +9,15 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "",
                 "path": [
-                    "/usr/include"
+                    "/usr/include",
+                    "${workspaceRoot}"
                 ]
             },
-            "intelliSenseMode": "clang-x64"
+            "intelliSenseMode": "clang-x64",
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ]
         },
         {
             "name": "Linux",
@@ -23,7 +28,8 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "",
                 "path": [
-                    "/usr/include"
+                    "/usr/include",
+                    "${workspaceRoot}"
                 ]
             },
             "intelliSenseMode": "clang-x64"
@@ -31,16 +37,20 @@
         {
             "name": "Win32",
             "includePath": [
-                "C:\\cygwin64\\lib\\gcc\\x86_64-pc-cygwin\\5.4.0\\include\\c++"
+                "C:\\cygwin64\\lib\\gcc\\x86_64-pc-cygwin\\5.4.0\\include\\c++",
+                "C:\\cygwin64\\lib\\gcc\\x86_64-pc-cygwin\\5.4.0\\include\\c++\\x86_64-pc-cygwin",
+                "C:\\cygwin64\\usr\\include"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "",
                 "path": [
-                    "C:\\cygwin64\\lib\\gcc\\x86_64-pc-cygwin\\5.4.0\\include\\c++"
+                    "C:\\cygwin64\\lib\\gcc\\x86_64-pc-cygwin\\5.4.0\\include\\c++",
+                    "${workspaceRoot}"
                 ]
             },
             "intelliSenseMode": "msvc-x64"
         }
-    ]
+    ],
+    "version": 4
 }

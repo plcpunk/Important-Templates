@@ -1,17 +1,22 @@
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
-    "version": "0.1.0",
-    "command": "g++",
-    "isShellCommand": true,
-    "showOutput": "always",
+    "version": "2.0.0",
     "tasks": [
-      {  "taskName": "Main",
-         "suppressTaskName": true,
-         "args": ["-g","Main.cpp","-lm", "-s", "-x c++", "-Wl,--stack=268435456", "-O2", "-o", "Main"]
+      {
+         "label": "Main",
+         "type": "shell",
+         "command": "g++",
+         "args": ["-g","Main.cpp","-lm", "-s", "-x c++", "-Wl,--stack=268435456", "-O2", "-o", "Main"],
+         "group": {
+            "kind": "build",
+            "isDefault": true
+        }
       },
-      { "taskName": "Debug",
-         "suppressTaskName": true,
+      {
+         "label": "Debug",
+         "type": "shell",
+         "command": "g++",
          "args": ["-g","Main.cpp", "-o", "Main"]
       }
     ]
