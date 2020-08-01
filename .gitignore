@@ -27,7 +27,11 @@
 *.exe
 *.out
 *.app
+*.bat
 
 #Folders
-input/
-output/
+input
+output
+
+#Files
+Main.cpp
