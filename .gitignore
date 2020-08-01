@@ -29,5 +29,8 @@
 *.app
 
 #Folders
-input/
-output/
+input
+output
+
+#Files
+Main.cpp
