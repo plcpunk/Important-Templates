@@ -34,4 +34,5 @@ input
 output
 
 #Files
-Main.cpp
+input.txt
+output.txt
